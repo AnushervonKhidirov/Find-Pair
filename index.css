@@ -1,0 +1,20 @@
+* {
+    user-select: none;
+}
+
+.game-tambel.end_game {
+    pointer-events: none;
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    border: 1px solid #000;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.cell.fonded {
+    pointer-events: none;
+    opacity: 0;
+}
