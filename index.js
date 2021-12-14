@@ -1,22 +1,13 @@
-const applyBtn = document.querySelector('.apply');
-const inputs = document.querySelectorAll('input');
-
+const startBtn = document.querySelector('button');
+const timer = document.querySelector('.timer');
 const gameTable = document.querySelector('.game-tambel');
 let compareArr = [];
-let pairAmount = 0;
+let pairAmount = 4;
 let foundedPair = 0;
-let timer;
-let gameTimeout;
+let interval;
+let gameTimeout = 20;
 
-applyBtn.onclick = () => {
-    pairAmount = inputs[0].value;
-    gameTimeout = inputs[1].value;
-
-    if (pairAmount < 2 && gameTimeout < 5) {
-        alert('min valu of pairs is 2 and timer is 5');
-        return;
-    }
-
+startBtn.onclick = () => {
     clearTable();
     createTable(pairAmount);
 }
@@ -30,12 +21,21 @@ function clearTable() {
 
 function createTable(pairAmount) {
     let suffleKeys = shuffle(createPairKey(pairAmount));
-
     appendCells(pairAmount, suffleKeys);
 
-    timer = setTimeout(() => {
-        endGame(false);
-    }, gameTimeout * 1000);
+    timer.innerHTML = gameTimeout;
+
+    interval = setInterval(() => {
+        gameTimeout--;
+
+        if (gameTimeout < 10) gameTimeout = '0' + gameTimeout.toString();
+        timer.innerHTML = gameTimeout;
+
+        if (gameTimeout == 0) {
+            endGame(false);
+            clearInterval(interval);
+        }
+    }, 1000);
 }
 
 function appendCells(pairAmount, keys) {
@@ -44,9 +44,6 @@ function appendCells(pairAmount, keys) {
         cell.classList.add('cell');
         cell.dataset.key = keys[i];
         cell.id = i;
-
-        cell.innerHTML = keys[i]
-
         cell.onclick = (e) => addToCompare(e);
         gameTable.appendChild(cell);
     }
@@ -87,7 +84,10 @@ function addToCompare(e) {
 
     cell.classList.add('show');
     compareArr.push(cellAttr);
-    if (compareArr.length == 2) copmairCells();
+    if (compareArr.length == 2) {
+        gameTable.classList.add('disabled');
+        copmairCells()
+    };
 }
 
 function copmairCells() {
@@ -95,7 +95,6 @@ function copmairCells() {
     let cellId2 = compareArr[1].id;
     let cellKey1 = compareArr[0].key;
     let cellKey2 = compareArr[1].key;
-
 
     if (cellId1 !== cellId2 && cellKey1 === cellKey2) {
         foundedPair++
@@ -105,16 +104,18 @@ function copmairCells() {
         setTimeout(() => {
             compareArr[0].elem.classList.add('fonded');
             compareArr[1].elem.classList.add('fonded');
+            gameTable.classList.remove('disabled');
             setTimeout(() => cleareCompArr(), 200);
-        }, 700);
+        }, 500);
 
     } else if (cellId1 === cellId2) {
         cleareCompArr();
     } else {
-        setTimeout(() => cleareCompArr(), 700);
+        setTimeout(() => cleareCompArr(), 500);
     }
 
     function cleareCompArr() {
+        gameTable.classList.remove('disabled');
         compareArr[0].elem.classList.remove('show');
         compareArr[1].elem.classList.remove('show');
         compareArr = [];
@@ -130,5 +131,4 @@ function endGame(win) {
 
     gameTable.classList.add('end_game');
     foundedPair = 0;
-    clearTimeout(timer);
 }
